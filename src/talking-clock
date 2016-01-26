@@ -66,7 +66,8 @@ hour=$(date +'%-l')
 minute=$(date +'%-M')
 timeOfDay=$(date +'%p' | sed 's/AM/A M/')
 #Default sound to play on half hour *:30
-quarterHourChime="/usr/share/talking-clock/bell.ogg"
+prependSound="/usr/share/talking-clock/prepend.ogg"
+quarterHourChime="/usr/share/talking-clock/15.ogg"
 #Default sound to play on hours
 hourChime="/usr/share/talking-clock/bell.ogg"
 #play chimes?
@@ -336,7 +337,7 @@ if [ "$minute" -eq "0" ] ; then
         if [ $chime != "false" ] ; then
             i=0
             #create chime string for sound players that can handle more than one sound argument.
-            soundString=""
+            soundString="$prependSound"
             while [ "$i" -lt "$hour" ] ; do
                 if [[ "$soundCommand" == "play" || "$soundCommand" == "play -q" || "$soundCommand" == "ogg123" || "$soundCommand" == "ogg123 -q" ]] ; then
                 soundString="$soundString $hourChime"
