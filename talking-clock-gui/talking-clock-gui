@@ -1,0 +1,199 @@
+#!/bin/bash
+#GUI for the talking-clock program
+#Written by Storm Dragon
+#Tuesday, August 28, 2012
+#license GPL
+
+chime_settings()
+{
+    #get how often the clock should chime.
+    chimeInterval=$(yad --form --field="Chime:cb" --separator="" --title="Talking Clock" --text="Please select how often you would like talking-clock to chime:" 'Disable!Hourly!Every Half Hour!Every Quarter Hour')
+    case "$chimeInterval" in
+    'Disable')
+        chimeInterval=0
+    ;;
+    'Hourly')
+        chimeInterval=1
+    ;;
+    'Every Half Hour')
+        chimeInterval=2
+    ;;
+    'Every Quarter Hour')
+        chimeInterval=4
+    ;;
+    esac
+    #if [[ $chimeInterval -ge 1 && $chimeInterval -le 4 ]] ; then
+        echo "talking-clock --cron $chimeInterval"
+    #fi
+}
+
+read_settings()
+{
+    #Initialize variables to defaults before reading existing settings if any
+    chime="true"
+    speak="true"
+    voice=espeak
+    if [ -e "$confFile" ] ; then
+        if [ -w "$confFile" ] ; then
+            bell="$(grep -i 'bell=' "$confFile" | cut -d = -f 2)"
+            prepend="$(grep -i 'prepend=' "$confFile" | cut -d = -f 2)"
+            quarter="$(grep -i 'quarter=' "$confFile" | cut -d = -f 2)"
+            sound="$(grep -i 'sound=' "$confFile" | cut -d = -f 2)"
+            soundpack="$(grep -i 'soundpack=' "$confFile" | cut -d = -f 2)"
+            voice="$(grep -i 'voice=' "$confFile" | cut -d = -f 2)"
+            zipcode="$(grep -i 'zipcode=' "$confFile" | cut -d = -f 2)"
+        else
+            yad --error --title="Talking Clock" --text="There was an error reading the settings file. Exiting."
+            exit 1
+        fi
+    fi
+}
+
+sound_settings()
+{
+    #Initialize soundMenu variable
+    soundMenu=0
+    while [ $soundMenu -ne 7 ] ; do
+        #Set soundMenu variable e so it will exit properly if nothing is chosen.
+        soundMenu=7
+        #get current setting of speak and chime options to make menu display correctly.
+        if [ "$chime" == "true" ] ; then
+            chimeSetting="Disable"
+        else
+            chimeSetting="Enable"
+        fi
+        if [ "$speak" == "true" ] ; then
+            speakSetting="Disable"
+        else
+            speakSetting="Enable"
+        fi
+        #Generate the menu for all sound options
+        yad --title="Talking Clock Sound Settings" --text="select an option:" --button="$chimeSetting _Chimes:1" --button="$speakSetting _Speech:2" --button="_Bell:3" --button="_Quarter Hour:4" --button="_Prepend:5" --button="_Soundpack:6" --button="_Main Menu:7"
+        soundMenu=$?
+        #adjust sounds preferences based on the above menu option.
+        case $soundMenu in
+        1)
+            if [ "$chime" == "true" ] ; then
+                chime="false"
+            else
+                chime="true"
+            fi
+        ;;
+        2)
+            if [ -n "$zipcode" ] ; then
+                yad --error --title="Talking Clock" --text="You must clear the postal code before disabling speech. To do so, select weather from the main menu, and leave the postal code field blank."
+            fi
+            if [ "$speak" == "true" -a -z "$zipcode" ] ; then
+                speak="false"
+            else
+                speak="true"
+            fi
+        ;;
+        3)
+            bell="$(yad --file-selection --title="Select An Hourly chime sound" --file-filter="*.ogg")"
+            if [ -n "$bell" ] ; then
+                soundpack=""
+            fi
+        ;;
+        4)
+            quarter="$(yad --file-selection --title="Select A Quarter Hour chime sound" --file-filter="*.ogg")"
+            if [ -n "$quarter" ] ; then
+                soundpack=""
+            fi
+        ;;
+        5)
+            prepend="$(yad --file-selection --title="Select a sound to play before each chime" --file-filter="*.ogg")"
+        ;;
+        6)
+            soundpack="$(yad --file-selection --title="Select the directory that contains the soundpack" --directory)"
+            if [ -n "$soundpack" ] ; then
+                bell=""
+                quarter=""
+            fi
+        ;;
+        esac
+    done
+}
+
+voice_settings()
+{
+    voice="$(yad --form --separator="" --field="voice:cb" --title="Talking Clock" --text="Please select a voice for Talking Clock to use:" 'cepstral!espeak!festival!pico!custom')"
+    echo "$voice"
+    if [ "$voice" == "custom" ] ; then
+        voice="$(yad --entry --title="Talking Clock" --text="Please enter custom voice command:")"
+    fi
+}
+
+weather_settings()
+{
+    zipcode="$(yad --entry --title="Talking Clock Weather Settings" --text="Please enter your postal code:")"
+    if [ -n "$zipcode" ] ; then
+        speak="true"
+    fi
+}
+
+write_settings()
+{
+    #Make sure the file either doesn't exist, or we have write permissions
+    if [ ! -e "$confFile" -o -r "$confFile" ] ; then
+        echo -e "chime=$chime\nspeak=$speak" > $confFile
+        if [ -n "$bell" ] ; then
+            echo "bell=$bell" >> $confFile
+        fi
+        if [ -n "$prepend" ] ; then
+            echo -e "prepend=$prepend" >> $confFile
+        fi
+        if [ -n "$quarter" ] ; then
+            echo -e "quarter=$quarter" >> $confFile
+        fi
+        if [ -n "$sound" ] ; then
+            echo -e "sound=$sound" >> $confFile
+        fi
+        if [ -n "$soundpack" ] ; then
+            echo -e "soundpack=$soundpack" >> $confFile
+        fi
+        if [ -n "$voice" ] ; then
+            echo -e "voice=$voice" >> $confFile
+        fi
+        if [ -n "$zipcode" ] ; then
+            echo -e "zipcode=$zipcode" >> $confFile
+        fi
+    fi
+}
+
+#Main section loop
+#find out if changes are system wide, or fo local user.
+if [ "$(whoami)" == "root" ] ; then
+confFile="/etc/talking-clockrc"
+else
+confFile="$HOME/.talking-clockrc"
+fi
+#initialize settings
+read_settings
+#initialize menu variable
+menu=0
+while [ $menu -lt 5 ] ; do
+#Set menu to exit code incase the window is closed without an option being selected
+menu=5
+yad --title="Talking Clock" --text="Select an option:" --button="_Chime Settings:1" --button="_Sounds and Soundpacks:2" --button="_Voice:3" --button="_Weather:4" --button="Cance_l:5" --button="S_ave Settings:6"
+menu=$?
+case "$menu" in
+    1)
+        chime_settings
+    ;;
+    2)
+        sound_settings
+    ;;
+    3)
+        voice_settings
+    ;;
+    4)
+        weather_settings
+    ;;
+    6)
+        write_settings
+    ;;
+    *)
+        exit 0
+esac
+done

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#To install using this script:
+#chmod 700 INSTALL
+#then run by typing ./INSTALL as root or with sudo.
+# If you want to install by hand, just copy the commands below the word fi that ends the if statement below. Exclude the exit 0 statement.
+if [[ $(whoami) != "root" ]] ; then
+echo "Need to be root."
+exit 1
+fi
+
+cp src/talking-clock /usr/bin/talking-clock
+chmod 755 /usr/bin/talking-clock
+mkdir -p /usr/share/talking-clock/
+cp src/{bell,prepend,15,30,45}.ogg /usr/share/talking-clock/
+cp README.md /usr/share/talking-clock/README.md
+exit 0
+
