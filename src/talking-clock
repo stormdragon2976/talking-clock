@@ -18,34 +18,45 @@ if [ "$1" == "--cron" ] ; then
         "to view your settings."
         exit 1
     fi
-    crontab -l > /tmp/cron.bak
-    read -p "You are about to modify talking-clock settings. Are you sure you want to do this? (Only y or Y confirms, anything else cancels) ", answer
-    if [[ "$answer" != "y" && "$answer" != "Y" ]] ; then
+    crontabFile="$(mktemp)" 
+    crontab -l > "$crontabFile"
+    read -n1 -p "You are about to modify talking-clock settings. Are you sure you want to do this? (Only y or Y confirms, anything else cancels) ", answer
+    if [ "${answer^}" != "Y" ]; then
         echo "talking-clock settings unchanged."
+        rm "$crontabFile"
         exit 0
     fi
-    sed -i -r '/^.*talking-clock.*$/d' /tmp/cron.bak
-    newCron=$(cat /tmp/cron.bak)
+    sed -i -r '/^.*talking-clock.*$/d' "$crontabFile"
     case "$2" in
         "1")
             #Chime once per hour.
-            newCron="$newCron\n#talking-clock settings\n0 * * * * talking-clock > /dev/null"
+            echo "# talking-clock settings" >> "$crontabFile"
+            echo '0 * * * * /usr/bin/talking-clock &> /dev/null' >> "$crontabFile"
         ;;
         "2")
             #Chime twice per hour.
-            newCron="$newCron\n#talking-clock settings\n0,30 * * * * talking-clock > /dev/null"
+            echo "# talking-clock settings" >> "$crontabFile"
+            echo '0,30 * * * * talking-clock &> /dev/null' >> "$crontabFile"
         ;;
         "4")
             #Chime four times per hour.
-            newCron="$newCron\n#talking-clock settings\n0,15,30,45 * * * * talking-clock > /dev/null"
+            echo "# talking-clock settings" >> "$crontabFile"
+            echo '0,15,30,45 * * * * talking-clock &> /dev/null' >> "$crontabFile"
     esac
-    #write new cron to temperary file.
-    echo -e "$newCron" > /tmp/cron.bak
     #install the new cron file.
-    if [ -f /tmp/cron.bak ] ; then
-        crontab /tmp/cron.bak
-        echo "talking-clock settings updated."
-        exit 0
+    if [ -f/"$crontabFile" ]; then
+        if crontab "$crontabFile" ; then
+            echo "talking-clock settings updated."
+            rm "$crontabFile"
+            exit 0
+        else
+            echo "There was an error installing the new crontab file."
+            rm "$crontabFile"
+            exit 1
+        fi
+    else
+        echo "Couldn't create new crontab."
+        exit 1
     fi
     exit 0
 fi
