@@ -272,7 +272,7 @@ if [ "$speakTime" == "true" ] ; then
             echo "$timeString" | flite
         ;;
         "googletts")
-            /usr/bin/translate -speak -b "$timeString"
+            /usr/bin/translate-shell -speak -b "$timeString"
         ;;
         "flite_time")
             flite_time $(date +'%H:%M') &> /dev/null
