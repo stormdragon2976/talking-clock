@@ -337,7 +337,7 @@ if [ "$minute" -eq "0" ] ; then
         if [ $chime != "false" ] ; then
             i=0
             #create chime string for sound players that can handle more than one sound argument.
-            soundString="$prependSound"
+            soundString=""
             while [ "$i" -lt "$hour" ] ; do
                 if [[ "$soundCommand" == "play" || "$soundCommand" == "play -q" || "$soundCommand" == "ogg123" || "$soundCommand" == "ogg123 -q" ]] ; then
                 soundString="$soundString $hourChime"
