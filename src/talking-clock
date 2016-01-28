@@ -4,6 +4,154 @@
 #project first created on Wednesday, March 23, 2011
 #license WTFPL: http://wtfpl.net
 
+number_to_text()
+{
+    # If the first argument is not numeric, then it is the return variable.
+    if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        local __numberVariable=$1
+        shift
+    fi
+    local number=$1
+    # Check for negative numbers.
+    if [ "${number:0:1}" = "-" ]; then
+        local textNumber="negative "
+        number="${number:1}"
+    else
+        local textNumber=""
+    fi
+    # This loop processes the numbers, only up to 999 for now, but can be expanded easily, I think.
+    while [ ${#number} -gt 0 ]; do
+        # To expand, add or to the if, 2 or 5 or 8, etc
+        if [ ${#number} -eq 2 ]; then
+            case $number in
+                0[1-9])
+                textNumber="${textNumber}and "
+                number="${number:1}"
+            ;;
+            10)
+                textNumber="${textNumber}ten"
+            ;;
+            11)
+                textNumber="${textNumber}eleven"
+            ;;
+            12)
+                textNumber="${textNumber}twelve"
+            ;;
+            13)
+                textNumber="${textNumber}thirteen"
+            ;;
+            14)
+                textNumber="${textNumber}fourteen"
+            ;;
+            15)
+                textNumber="${textNumber}fifteen"
+            ;;
+            16)
+                textNumber="${textNumber}sixteen"
+            ;;
+            17)
+                textNumber="${textNumber}seventeen"
+            ;;
+            18)
+                textNumber="${textNumber}eightteen"
+            ;;
+            19)
+                textNumber="${textNumber}nineteen"
+            ;;
+            2*)
+                textNumber="${textNumber}twenty"
+            ;;
+            3*)
+                textNumber="${textNumber}thirty"
+            ;;
+            4*)
+                textNumber="${textNumber}forty"
+            ;;
+            5*)
+                textNumber="${textNumber}fifty"
+            ;;
+            6*)
+                textNumber="${textNumber}sixty"
+            ;;
+            7*)
+                textNumber="${textNumber}seventy"
+            ;;
+            8*)
+                textNumber="${textNumber}eighty"
+            ;;
+            9*)
+                textNumber="${textNumber}ninety"
+            ;;
+            esac
+        fi
+        # This stops the loop if the final digit is 0 otherwise we get a repeat of the digit before, 90 becomes 99 etc.
+        if [ ${#number} -eq 2 -a ${number:$((${#number} - 1)):1} -eq 0 ]; then
+            break
+        fi
+        # Put dashes in the proper places.
+        if [ ${#number} -eq 2 -a $number -gt 20 ]; then
+            if [ $(($number % 10)) -ne 0 ]; then
+                textNumber="${textNumber}-"
+            fi
+        fi
+        # Remove digits from the number that have already been processed.
+        if [ ${#number} -eq 2 -a $number -lt 20 ]; then
+            number="${number:2}"
+        fi
+        case ${number:0:1} in
+            1)
+                textNumber="${textNumber}one"
+            ;;
+            2)
+                textNumber="${textNumber}two"
+            ;;
+            3)
+                textNumber="${textNumber}three"
+            ;;
+            4)
+                textNumber="${textNumber}four"
+            ;;
+            5)
+                textNumber="${textNumber}five"
+            ;;
+            6)
+                textNumber="${textNumber}six"
+            ;;
+            7)
+                textNumber="${textNumber}seven"
+            ;;
+            8)
+                textNumber="${textNumber}eight"
+            ;;
+            9)
+                textNumber="${textNumber}nine"
+        esac
+        # Add the correct bit to the text number, million, thousand, hundred, etc. Trim off already processed digits.
+        case ${#number} in
+            3)
+                if [ $(($number % 100)) -eq 0 ]; then
+                    textNumber="${textNumber} hundred"
+                else
+                    textNumber="${textNumber} hundred "
+                fi
+                number="${number:1}"
+            ;;
+            2)
+                number="${number:2}"
+            ;;
+            *)
+                number="${number:1}"
+        esac
+    done
+    # If we have a return variable set its value to the text.
+    if [ -n "$__numberVariable" ]; then
+        eval $__numberVariable="'$textNumber'"
+    # Else just echo the text.
+    else
+        echo "$textNumber"
+    fi
+}
+
 #Create or modify cron jobs
 if [ "$1" == "--cron" ] ; then
     if [ "$#" -ne "2" ] ; then
@@ -234,9 +382,9 @@ if [ "$speakTime" == "true" ] ; then
     if [ "$minute" -eq "0" ] ; then
         timeString="$hour o clock $timeOfDay"
     elif [ "$minute" -lt "10" ] ; then
-        timeString="$hour o $minute $timeOfDay"
+        timeString="$(number_to_text $hour) o $(number_to_text $minute) $timeOfDay"
     else
-        timeString="$hour $minute $timeOfDay"
+        timeString="$(number_to_text $hour) $(number_to_text $minute) $timeOfDay"
     fi
     #if 24 time is set, override the above with correct settings.
     if [ -n "$format" ] ; then
@@ -253,8 +401,7 @@ if [ "$speakTime" == "true" ] ; then
             temperature="$(curl -s "http://weather.yahooapis.com/forecastrss?p=${zipcode}&u=f" | grep -A 1 "Current Conditions:" | tr -Cd '[:digit:]-')"
         fi
         if [ -n "$temperature" ] ; then
-            timeString="$timeString $temperature degrees."
-            timeString="$(echo "$timeString" | sed -e 's/-/negative /')"
+            timeString="$timeString $(number_to_text $temperature) degrees."
         fi
     fi
     case "$voice" in
