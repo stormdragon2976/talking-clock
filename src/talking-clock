@@ -272,7 +272,10 @@ soundCommand="${sound:-play -qV0}"
 voice="${voice:-espeak -v en-us -a 150}"
 #should the time be spoken?
 speakTime="${speak:-true}"
+# Load soundpack.
 soundPack="${soundpack:-/usr/share/talking-clock}"
+# Time format
+format="${format:-12}"
 
 #Get and process commandline args which override all other settings.
 while [ $# -gt 0 ] ; do
@@ -337,11 +340,9 @@ if [ "$speakTime" == "true" ] ; then
         timeString="$(number_to_text $hour) $(number_to_text $minute) $timeOfDay"
     fi
     #if 24 time is set, override the above with correct settings.
-    if [ -n "$format" ] ; then
+    if [ "$format" = "24" ] ; then
         #Make it read purdy for speech synthesizers.
         timeString="$(date +'%H:%M' | sed -e 's/^00:00$/zero hundred hours/' -e 's/:00$/ hundred hours/' -e 's/:0/ o /' -e 's/^0//')"
-    else
-        timeString="$(echo "$timeString" | sed -e 's/^0//' -e 's/^10/ten/' -e 's/^11/eleven/' -e 's/^12/twelve/')"
     fi
     #Add temperature if zipcode is set
     if [ -n "$zipcode" ] ; then
