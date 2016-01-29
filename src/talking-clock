@@ -426,7 +426,7 @@ fi
 #Play the prepended sound if one is selected
 #There will be a slight gap between the prepended sound and the actual chiming.
 #This is to simulate real clocks based on my experience.
-if [ $minute -eq 0 ]; then
+if [ "$minute" -eq "0" ]; then
     if [ -f "$soundPack/prepend.ogg" ] ; then
         $soundCommand "$soundPack/prepend.ogg"
     fi
