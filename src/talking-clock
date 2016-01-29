@@ -342,7 +342,21 @@ if [ "$speakTime" == "true" ] ; then
     #if 24 time is set, override the above with correct settings.
     if [ "$format" = "24" ] ; then
         #Make it read purdy for speech synthesizers.
-        timeString="$(date +'%H:%M' | sed -e 's/^00:00$/zero hundred hours/' -e 's/:00$/ hundred hours/' -e 's/:0/ o /' -e 's/^0//')"
+        timeStringHour="$(date +'%-H')"
+            if [ $timeStringHour -eq "0" ]; then
+        timeString="zero"
+            elif [ $timeStringHour -lt 10 ]; then
+        timeString="O $(number_to_text $timeStringHour)"
+            else
+        timeString="$(number_to_text $timeStringHour)"
+            fi
+            if [ $minute -eq "0" ]; then
+        timeString="${timeString} hundred hours"
+            elif [ $minute -lt 10 ]; then
+        timeString="${timeString} O $(number_to_text $minute)"
+            else
+        timeString="${timeString} $(number_to_text $minute)"
+            fi
     fi
     #Add temperature if zipcode is set
     if [ -n "$zipcode" ] ; then
@@ -352,7 +366,11 @@ if [ "$speakTime" == "true" ] ; then
             temperature="$(curl -s "http://weather.yahooapis.com/forecastrss?p=${zipcode}&u=f" | grep -A 1 "Current Conditions:" | tr -Cd '[:digit:]-')"
         fi
         if [ -n "$temperature" ] ; then
-            timeString="$timeString $(number_to_text $temperature) degrees."
+            if [ "$format" = "24" ]; then
+                timeString="$timeString and $(number_to_text $temperature) degrees."
+            else
+                timeString="$timeString $(number_to_text $temperature) degrees."
+            fi
         fi
     fi
     case "$voice" in
