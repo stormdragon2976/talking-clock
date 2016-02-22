@@ -425,7 +425,7 @@ fi
 #There will be a slight gap between the prepended sound and the actual chiming.
 #This is to simulate real clocks based on my experience.
 if [ "$minute" -eq "0" ]; then
-    if [[ -f "$soundPack/prepend.ogg" -a "$chime" = "true" ]]; then
+    if [[ -f "$soundPack/prepend.ogg" && "$chime" = "true" ]]; then
         $soundCommand "$soundPack/prepend.ogg"
     fi
 fi
