@@ -359,9 +359,9 @@ if [ "$speakTime" == "true" ] ; then
     #Add temperature if zipcode is set
     if [ -n "$zipcode" ] ; then
        if [ "$torify" == "true" ] ; then 
-            temperature="$(torify curl -s "http://weather.yahooapis.com/forecastrss?p=${zipcode}&u=f" | grep -A 1 "Current Conditions:" | tr -Cd '[:digit:]-')"
+            temperature="$(torify curl -s "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?brand=mobile&query=${zipcode}" | grep -A 2 '<tr><td>Temperature</td>' | tr -cd '[:digit:]-.' | cut -d . -f1)"
         else
-            temperature="$(curl -s "http://weather.yahooapis.com/forecastrss?p=${zipcode}&u=f" | grep -A 1 "Current Conditions:" | tr -Cd '[:digit:]-')"
+            temperature="$(curl -s "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?brand=mobile&query=${zipcode}" | grep -A 2 '<tr><td>Temperature</td>' | tr -cd '[:digit:]-.' | cut -d . -f1)"
         fi
         if [ -n "$temperature" ] ; then
             if [ "$format" = "24" ]; then
@@ -425,7 +425,7 @@ fi
 #There will be a slight gap between the prepended sound and the actual chiming.
 #This is to simulate real clocks based on my experience.
 if [ "$minute" -eq "0" ]; then
-    if [[ -f "$soundPack/prepend.ogg" -a "$chime" = "true" ]]; then
+    if [[ -f "$soundPack/prepend.ogg" && "$chime" = "true" ]]; then
         $soundCommand "$soundPack/prepend.ogg"
     fi
 fi
