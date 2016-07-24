@@ -210,7 +210,8 @@ if [ "$1" == "--cron" ] ; then
     fi
     crontabFile="$(mktemp)" 
     crontab -l > "$crontabFile"
-    read -n1 -p "You are about to modify talking-clock settings. Are you sure you want to do this? (Only y or Y confirms, anything else cancels) ", answer
+    read -n1 -p "You are about to modify talking-clock settings. Are you sure you want to do this? (Only y or Y confirms, anything else cancels) " answer
+    echo
     if [ "${answer^}" != "Y" ]; then
         echo "talking-clock settings unchanged."
         rm "$crontabFile"
