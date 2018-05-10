@@ -222,20 +222,17 @@ if [ "$1" == "--cron" ] ; then
         "1")
             #Chime once per hour.
             echo "# talking-clock settings" >> "$crontabFile"
-            echo "XDG_RUNTIME_DIR=/run/user/$UID # Make talking-clock play nice with pulseaudio" >> "$crontabFile"
-            echo '0 * * * * /usr/bin/talking-clock &> /dev/null' >> "$crontabFile"
+            echo "0 * * * * XDG_RUNTIME_DIR=/run/user/$UID /usr/bin/talking-clock &> /dev/null" >> "$crontabFile"
         ;;
         "2")
             #Chime twice per hour.
             echo "# talking-clock settings" >> "$crontabFile"
-            echo "XDG_RUNTIME_DIR=/run/user/$UID # Make talking-clock play nice with pulseaudio" >> "$crontabFile"
-            echo '0,30 * * * * talking-clock &> /dev/null' >> "$crontabFile"
+            echo "0,30 * * * * XDG_RUNTIME_DIR=/run/user/$UID talking-clock &> /dev/null" >> "$crontabFile"
         ;;
         "4")
             #Chime four times per hour.
             echo "# talking-clock settings" >> "$crontabFile"
-            echo "XDG_RUNTIME_DIR=/run/user/$UID # Make talking-clock play nice with pulseaudio" >> "$crontabFile"
-            echo '0,15,30,45 * * * * talking-clock &> /dev/null' >> "$crontabFile"
+            echo "0,15,30,45 * * * * XDG_RUNTIME_DIR=/run/user/$UID talking-clock &> /dev/null" >> "$crontabFile"
     esac
     #install the new cron file.
     if [ -f/"$crontabFile" ]; then
