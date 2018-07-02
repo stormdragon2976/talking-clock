@@ -360,9 +360,9 @@ if [ "$speakTime" == "true" ] ; then
     #Add temperature if zipcode is set
     if [ -n "$zipcode" ] ; then
        if [ "$torify" == "true" ] ; then 
-            temperature="$(torify curl -s "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?brand=mobile&query=${zipcode}" | grep -A 2 '<tr><td>Temperature</td>' | tr -cd '[:digit:]-.' | cut -d . -f1)"
+            temperature="$(torify curl -s "http://wttr.in/$zipcode?T" | grep -m 1 -Eo -e '-?[[:digit:]].*[CF]' | cut -d ' ' -f1 | sed 's/.*-//')"
         else
-            temperature="$(curl -s "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?brand=mobile&query=${zipcode}" | grep -A 2 '<tr><td>Temperature</td>' | tr -cd '[:digit:]-.' | cut -d . -f1)"
+            temperature="$(curl -s "http://wttr.in/$zipcode?T" | grep -m 1 -Eo -e '-?[[:digit:]].*[CF]' | cut -d ' ' -f1 | sed 's/.*-//')"
         fi
         if [ -n "$temperature" ] ; then
             if [ "$format" = "24" ]; then
