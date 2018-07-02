@@ -52,8 +52,8 @@ voice=espeak -v en-us+klatt2 -s 300
 Be careful when using custom voice commands, if it is not valid the program will not work. You do not have to specify parameters for voice commands if you want to use the defaults. You can use voice=espeak (this is the default), voice=cepstral, voice=speech-dispatcher, voice=pico, or voice=festival.
 
 Creating soundpacks is very simple. Make a directory named anything you wish, thunderstorm for example, and place files inside it. The naming scheme for soundpack files follows the hours 1 through 12 and quarter hours 15, 30, 45. Each sound file must be in .ogg format. So, your directory will contain 1.ogg, 2.ogg, ... 12.ogg, 15.ogg, 30.ogg, and 45.ogg. If hourly chimes sound the same, use a bell for example, just name the chime bell.ogg. If hourly chimes should be prepended with a sound, then name the sound prepend.ogg, will play at each hour, before the chimes.To download or submit soundpacks go to:
-http://www.stormdragon.us/talking-clock/
+https://stormdragon.tk/talking-clock/
 
 If you wish to contact me you can find me on GNU Social as @storm@social.stormdragon.tk. Also don't forget to check out my blog located at:
-http://www.stormdragon.tk/
-I can also usually be found on irc.netwirc.tk in channel #talkingarch
+https://stormdragon.tk/
+I can also usually be found on irc.talkabout.cf in channel #a11y
