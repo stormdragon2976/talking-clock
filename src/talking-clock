@@ -405,7 +405,7 @@ if [ "$speakTime" == "true" ] ; then
             flite_time $(date +'%H:%M') &> /dev/null
         ;;
         "sam")
-            echo "$timeString" | sam
+            sam "$timeString"
         ;;
         "speech-dispatcher")
             spd-say -w -P important "$timeString"
