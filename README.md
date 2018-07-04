@@ -27,7 +27,8 @@ Note that with the ogg123 command the aplay command is used for the pico voice. 
 -s --soundpack Set path to soundpack. Sound packs should be in ogg format and contain 1.ogg, 2.ogg, ... 11.ogg, 12.ogg and 15.ogg, 30.ogg, and 45.ogg for the quarter-hour chimes.
 -t --torify anonymously get your current temperature, used with -z --zipcode.
 -v --voice Select voice. Default is espeak other options are
-cepstral, espeak, festival, flite, flite_time googletts (requires the translate-shell package), pico, speech-dispatcher and custom.
+cepstral, espeak, festival, flite, flite_time, gama_tts, googletts (requires the translate-shell package), pico, sam, speech-dispatcher and custom.
+If your tts files for gama_tts are somewhere other than  /usr/local/share/gama_tts/data/english/ then you can specify it in your ~/.config/talking-clock/talking-clockrc. Just do gama_tts_path="/path/to/tts/vtmN where N is the number you want.
 To set a custom voice enter the command as in:
 -v 'espeak -v en-us+klatt2'
 zipcode and flite_time are incompatable. If you have zipcode set the temperature will not be read while using flite_time.

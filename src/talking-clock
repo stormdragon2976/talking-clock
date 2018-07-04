@@ -19,7 +19,7 @@ half-hour, 4 every quarter, and anything else will delete your existing settings
 -s --soundpack Set path to soundpack. Sound packs should be in ogg format and contain 1.ogg, 2.ogg, ... 11.ogg, 12.ogg and
  15, 30, and 45.oggfor the quarter-hour chimes.
 -v --voice Select voice. Default is espeak other options are
-cepstral, espeak, festival, pico, sam, speech-dispatcher and custom.
+cepstral, espeak, festival, gama_tts, pico, sam, speech-dispatcher and custom.
 To set a custom voice enter the command as in:
 -v 'espeak -v en-us+klatt2'
 -t --torify retrieve temperature anonymously using torify, used with -z --zipcode
@@ -397,6 +397,12 @@ if [ "$speakTime" == "true" ] ; then
         "flite")
             #For some reason flite has trouble with ##:## format.
             echo "$timeString" | flite
+        ;;
+        "gama_tts")
+            gama_tts_wav="$(mktemp --suffix gama_talking_clock.wav)"
+            echo "$timeString" | gama_tts tts "${gama_tts_path:-/usr/local/share/gama_tts/data/english/vtm5}" $gama_tts_wav
+            $soundCommand $gama_tts_wav
+            rm $gama_tts_wav
         ;;
         "googletts")
             /usr/bin/trans -speak -b "$timeString"
