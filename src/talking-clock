@@ -401,7 +401,7 @@ if [ "$speakTime" == "true" ] ; then
         "gama_tts")
             gama_tts_wav="$(mktemp --suffix gama_talking_clock.wav)"
             echo "$timeString" | gama_tts tts "${gama_tts_path:-/usr/local/share/gama_tts/data/english/vtm5}" $gama_tts_wav &> /dev/null
-            XDG_RUNTIME_DIR=/run/user/$UID $soundCommand $gama_tts_wav
+            eval "$soundCommand $gama_tts_wav"
             rm $gama_tts_wav
         ;;
         "googletts")
